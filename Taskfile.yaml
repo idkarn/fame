@@ -1,0 +1,11 @@
+version: '3'
+
+vars:
+  GREETING: Hello, World!
+
+tasks:
+  backend:
+    dir: backend
+    cmds:
+      - go run .
+    silent: true
