@@ -11,5 +11,5 @@ type User struct {
 
 	ID     uuid.UUID `bun:",pk"`
 	Email  string    `bun:",unique"`
-	Secret string    `bun:""`
+	Secret string
 }

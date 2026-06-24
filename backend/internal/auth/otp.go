@@ -1,6 +1,7 @@
 package auth
 
 import (
+	"database/sql"
 	"errors"
 	"fame/internal/cache"
 	"fame/internal/db"
@@ -12,11 +13,20 @@ import (
 	"github.com/pquerna/otp/totp"
 )
 
-func CreateOTP(email string) *otp.Key {
+var EmailAlreadyExists = errors.New("this email already exists!")
+
+// todo: refactor
+func CreateOTP(c *echo.Context, email string) (*otp.Key, error) {
 	key, _ := totp.Generate(totp.GenerateOpts{
 		Issuer:      "Fame",
 		AccountName: email,
 	})
+
+	if u, err := db.FindUser(c.Request().Context(), email); u != nil {
+		return nil, EmailAlreadyExists
+	} else if !errors.Is(err, sql.ErrNoRows) {
+		return nil, err
+	}
 
 	cache.Client.Set(&memcache.Item{
 		Key:        email,
@@ -24,20 +34,31 @@ func CreateOTP(email string) *otp.Key {
 		Expiration: 5 * 60, // 5 mins
 	})
 
-	return key
+	return key, nil
 }
 
 // todo: refactor
 func VerifyOTP(c *echo.Context, email, code string) (bool, error) {
-	secret, err := cache.Client.Get(email)
+	var sec string
+
+	secretItem, err := cache.Client.Get(email)
 	if err != nil {
 		if errors.Is(err, memcache.ErrCacheMiss) {
-			return false, EmailNotFound
+			u, err := db.FindUser(c.Request().Context(), email)
+			if err != nil {
+				return false, err
+			} else if u == nil {
+				return false, EmailNotFound
+			}
+			sec = u.Secret
+		} else {
+			return false, err
 		}
-		return false, err
+	} else {
+		sec = string(secretItem.Value)
 	}
 
-	if !totp.Validate(code, string(secret.Value)) {
+	if !totp.Validate(code, sec) {
 		return false, nil
 	}
 
@@ -45,7 +66,7 @@ func VerifyOTP(c *echo.Context, email, code string) (bool, error) {
 		return false, err
 	}
 
-	db.CreateUser(c.Request().Context(), email, string(secret.Value))
+	db.CreateUser(c.Request().Context(), email, sec)
 
 	return true, nil
 }

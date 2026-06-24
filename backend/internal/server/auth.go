@@ -27,7 +27,10 @@ func GetOTP(c *echo.Context) error {
 		return c.String(http.StatusBadRequest, "email is not provided")
 	}
 
-	key := auth.CreateOTP(email.Email)
+	key, err := auth.CreateOTP(c, email.Email)
+	if err != nil {
+		return echo.ErrBadRequest.Wrap(err)
+	}
 
 	return c.String(http.StatusOK, key.URL())
 }
@@ -48,7 +51,7 @@ func PostOTP(c *echo.Context) error {
 	} else if err != nil {
 		return echo.ErrBadRequest.Wrap(err)
 	} else if !ok {
-		return c.String(http.StatusAccepted, "wrong code")
+		return c.String(http.StatusUnauthorized, "wrong code")
 	}
 
 	return c.String(http.StatusOK, "ok")
