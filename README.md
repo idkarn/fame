@@ -19,13 +19,13 @@
 
 ### Frontend
 
-- Vite
-- React
-- @tanstack/router
-- shadcn/ui
-- @tanstack/query
-- zustand
-- zod
-- react hook form
-- ESLint
-- Paraglide
+[x] Vite
+[x] React
+[x] @tanstack/router
+[x] shadcn/ui
+[ ] @tanstack/query
+[ ] zustand
+[x] zod
+[x] react hook form (@tanstack/table)
+[x] ESLint
+[ ] Paraglide
