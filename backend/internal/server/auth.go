@@ -47,7 +47,7 @@ func PostOTP(c *echo.Context) error {
 	}
 
 	if ok, err := auth.VerifyOTP(c, email.Email, email.Code); errors.Is(err, auth.AlreadyAuthorized) {
-		return c.Redirect(http.StatusFound, "/api/get")
+		return c.Redirect(http.StatusFound, "/api/me")
 	} else if err != nil {
 		return echo.ErrBadRequest.Wrap(err)
 	} else if !ok {

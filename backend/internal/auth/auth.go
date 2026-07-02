@@ -18,6 +18,9 @@ func SessionAuthMiddleware(next echo.HandlerFunc) echo.HandlerFunc {
 }
 
 func AuthorizeUser(c *echo.Context, id string) error {
+	if sm.Exists(c.Request().Context(), "user_id") {
+		return AlreadyAuthorized
+	}
 	sm.Put(c.Request().Context(), "user_id", id)
 	return nil
 }

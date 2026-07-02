@@ -17,16 +17,16 @@ var EmailAlreadyExists = errors.New("this email already exists!")
 
 // todo: refactor
 func CreateOTP(c *echo.Context, email string) (*otp.Key, error) {
-	key, _ := totp.Generate(totp.GenerateOpts{
-		Issuer:      "Fame",
-		AccountName: email,
-	})
-
 	if u, err := db.FindUser(c.Request().Context(), email); u != nil {
 		return nil, EmailAlreadyExists
 	} else if !errors.Is(err, sql.ErrNoRows) {
 		return nil, err
 	}
+
+	key, _ := totp.Generate(totp.GenerateOpts{
+		Issuer:      "Fame",
+		AccountName: email,
+	})
 
 	cache.Client.Set(&memcache.Item{
 		Key:        email,
@@ -45,10 +45,10 @@ func VerifyOTP(c *echo.Context, email, code string) (bool, error) {
 	if err != nil {
 		if errors.Is(err, memcache.ErrCacheMiss) {
 			u, err := db.FindUser(c.Request().Context(), email)
-			if err != nil {
-				return false, err
-			} else if u == nil {
+			if errors.Is(err, sql.ErrNoRows) {
 				return false, EmailNotFound
+			} else if err != nil {
+				return false, err
 			}
 			sec = u.Secret
 		} else {
