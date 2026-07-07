@@ -1,3 +1,4 @@
+import { paraglideVitePlugin } from '@inlang/paraglide-js'
 import { defineConfig } from 'vite'
 import { devtools } from '@tanstack/devtools-vite'
 
@@ -9,6 +10,11 @@ import tailwindcss from '@tailwindcss/vite'
 const config = defineConfig({
   resolve: { tsconfigPaths: true },
   plugins: [
+    paraglideVitePlugin({
+      project: './project.inlang',
+      outdir: './src/paraglide',
+      strategy: ['localStorage', 'preferredLanguage', 'baseLocale'],
+    }),
     devtools(),
     tailwindcss(),
     tanstackRouter({ target: 'react', autoCodeSplitting: true }),
@@ -17,10 +23,10 @@ const config = defineConfig({
   server: {
     proxy: {
       '/api': {
-        target: 'http://localhost:8080'
-      }
-    }
-  }
+        target: 'http://localhost:8080',
+      },
+    },
+  },
 })
 
 export default config
