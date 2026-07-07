@@ -15,6 +15,10 @@ import { Route as LoginIndexRouteImport } from './routes/login/index'
 import { Route as DashboardIndexRouteImport } from './routes/dashboard/index'
 import { Route as DashboardGamesIndexRouteImport } from './routes/dashboard/games/index'
 import { Route as DashboardGamesIdRouteImport } from './routes/dashboard/games/$id'
+import { Route as DashboardGamesIdIndexRouteImport } from './routes/dashboard/games/$id/index'
+import { Route as DashboardGamesIdConfigRouteImport } from './routes/dashboard/games/$id/config'
+import { Route as DashboardGamesIdBoardsRouteImport } from './routes/dashboard/games/$id/boards'
+import { Route as DashboardGamesIdAnalyticsRouteImport } from './routes/dashboard/games/$id/analytics'
 
 const DashboardRoute = DashboardRouteImport.update({
   id: '/dashboard',
@@ -46,21 +50,49 @@ const DashboardGamesIdRoute = DashboardGamesIdRouteImport.update({
   path: '/games/$id',
   getParentRoute: () => DashboardRoute,
 } as any)
+const DashboardGamesIdIndexRoute = DashboardGamesIdIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => DashboardGamesIdRoute,
+} as any)
+const DashboardGamesIdConfigRoute = DashboardGamesIdConfigRouteImport.update({
+  id: '/config',
+  path: '/config',
+  getParentRoute: () => DashboardGamesIdRoute,
+} as any)
+const DashboardGamesIdBoardsRoute = DashboardGamesIdBoardsRouteImport.update({
+  id: '/boards',
+  path: '/boards',
+  getParentRoute: () => DashboardGamesIdRoute,
+} as any)
+const DashboardGamesIdAnalyticsRoute =
+  DashboardGamesIdAnalyticsRouteImport.update({
+    id: '/analytics',
+    path: '/analytics',
+    getParentRoute: () => DashboardGamesIdRoute,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/dashboard': typeof DashboardRouteWithChildren
   '/dashboard/': typeof DashboardIndexRoute
   '/login/': typeof LoginIndexRoute
-  '/dashboard/games/$id': typeof DashboardGamesIdRoute
+  '/dashboard/games/$id': typeof DashboardGamesIdRouteWithChildren
   '/dashboard/games/': typeof DashboardGamesIndexRoute
+  '/dashboard/games/$id/analytics': typeof DashboardGamesIdAnalyticsRoute
+  '/dashboard/games/$id/boards': typeof DashboardGamesIdBoardsRoute
+  '/dashboard/games/$id/config': typeof DashboardGamesIdConfigRoute
+  '/dashboard/games/$id/': typeof DashboardGamesIdIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/dashboard': typeof DashboardIndexRoute
   '/login': typeof LoginIndexRoute
-  '/dashboard/games/$id': typeof DashboardGamesIdRoute
   '/dashboard/games': typeof DashboardGamesIndexRoute
+  '/dashboard/games/$id/analytics': typeof DashboardGamesIdAnalyticsRoute
+  '/dashboard/games/$id/boards': typeof DashboardGamesIdBoardsRoute
+  '/dashboard/games/$id/config': typeof DashboardGamesIdConfigRoute
+  '/dashboard/games/$id': typeof DashboardGamesIdIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -68,8 +100,12 @@ export interface FileRoutesById {
   '/dashboard': typeof DashboardRouteWithChildren
   '/dashboard/': typeof DashboardIndexRoute
   '/login/': typeof LoginIndexRoute
-  '/dashboard/games/$id': typeof DashboardGamesIdRoute
+  '/dashboard/games/$id': typeof DashboardGamesIdRouteWithChildren
   '/dashboard/games/': typeof DashboardGamesIndexRoute
+  '/dashboard/games/$id/analytics': typeof DashboardGamesIdAnalyticsRoute
+  '/dashboard/games/$id/boards': typeof DashboardGamesIdBoardsRoute
+  '/dashboard/games/$id/config': typeof DashboardGamesIdConfigRoute
+  '/dashboard/games/$id/': typeof DashboardGamesIdIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -80,13 +116,20 @@ export interface FileRouteTypes {
     | '/login/'
     | '/dashboard/games/$id'
     | '/dashboard/games/'
+    | '/dashboard/games/$id/analytics'
+    | '/dashboard/games/$id/boards'
+    | '/dashboard/games/$id/config'
+    | '/dashboard/games/$id/'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
     | '/dashboard'
     | '/login'
-    | '/dashboard/games/$id'
     | '/dashboard/games'
+    | '/dashboard/games/$id/analytics'
+    | '/dashboard/games/$id/boards'
+    | '/dashboard/games/$id/config'
+    | '/dashboard/games/$id'
   id:
     | '__root__'
     | '/'
@@ -95,6 +138,10 @@ export interface FileRouteTypes {
     | '/login/'
     | '/dashboard/games/$id'
     | '/dashboard/games/'
+    | '/dashboard/games/$id/analytics'
+    | '/dashboard/games/$id/boards'
+    | '/dashboard/games/$id/config'
+    | '/dashboard/games/$id/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -147,18 +194,63 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof DashboardGamesIdRouteImport
       parentRoute: typeof DashboardRoute
     }
+    '/dashboard/games/$id/': {
+      id: '/dashboard/games/$id/'
+      path: '/'
+      fullPath: '/dashboard/games/$id/'
+      preLoaderRoute: typeof DashboardGamesIdIndexRouteImport
+      parentRoute: typeof DashboardGamesIdRoute
+    }
+    '/dashboard/games/$id/config': {
+      id: '/dashboard/games/$id/config'
+      path: '/config'
+      fullPath: '/dashboard/games/$id/config'
+      preLoaderRoute: typeof DashboardGamesIdConfigRouteImport
+      parentRoute: typeof DashboardGamesIdRoute
+    }
+    '/dashboard/games/$id/boards': {
+      id: '/dashboard/games/$id/boards'
+      path: '/boards'
+      fullPath: '/dashboard/games/$id/boards'
+      preLoaderRoute: typeof DashboardGamesIdBoardsRouteImport
+      parentRoute: typeof DashboardGamesIdRoute
+    }
+    '/dashboard/games/$id/analytics': {
+      id: '/dashboard/games/$id/analytics'
+      path: '/analytics'
+      fullPath: '/dashboard/games/$id/analytics'
+      preLoaderRoute: typeof DashboardGamesIdAnalyticsRouteImport
+      parentRoute: typeof DashboardGamesIdRoute
+    }
   }
 }
 
+interface DashboardGamesIdRouteChildren {
+  DashboardGamesIdAnalyticsRoute: typeof DashboardGamesIdAnalyticsRoute
+  DashboardGamesIdBoardsRoute: typeof DashboardGamesIdBoardsRoute
+  DashboardGamesIdConfigRoute: typeof DashboardGamesIdConfigRoute
+  DashboardGamesIdIndexRoute: typeof DashboardGamesIdIndexRoute
+}
+
+const DashboardGamesIdRouteChildren: DashboardGamesIdRouteChildren = {
+  DashboardGamesIdAnalyticsRoute: DashboardGamesIdAnalyticsRoute,
+  DashboardGamesIdBoardsRoute: DashboardGamesIdBoardsRoute,
+  DashboardGamesIdConfigRoute: DashboardGamesIdConfigRoute,
+  DashboardGamesIdIndexRoute: DashboardGamesIdIndexRoute,
+}
+
+const DashboardGamesIdRouteWithChildren =
+  DashboardGamesIdRoute._addFileChildren(DashboardGamesIdRouteChildren)
+
 interface DashboardRouteChildren {
   DashboardIndexRoute: typeof DashboardIndexRoute
-  DashboardGamesIdRoute: typeof DashboardGamesIdRoute
+  DashboardGamesIdRoute: typeof DashboardGamesIdRouteWithChildren
   DashboardGamesIndexRoute: typeof DashboardGamesIndexRoute
 }
 
 const DashboardRouteChildren: DashboardRouteChildren = {
   DashboardIndexRoute: DashboardIndexRoute,
-  DashboardGamesIdRoute: DashboardGamesIdRoute,
+  DashboardGamesIdRoute: DashboardGamesIdRouteWithChildren,
   DashboardGamesIndexRoute: DashboardGamesIndexRoute,
 }
 

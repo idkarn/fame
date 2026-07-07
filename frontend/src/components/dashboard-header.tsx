@@ -8,6 +8,7 @@ import {
 } from './ui/select'
 import { useQuery } from '@tanstack/react-query'
 import { Button } from './ui/button'
+import { DashboardNavigation } from './dashboard-navigation'
 
 export function DashboardHeader() {
   const navigate = useNavigate()
@@ -43,25 +44,28 @@ export function DashboardHeader() {
   }
 
   return (
-    <div className="flex justify-between items-center">
-      <div className="flex items-center gap-4">
-        <h1 className="font-heading text-2xl font-bold">Fame</h1>
-        <Select value={currentGameId} onValueChange={onGameChange}>
-          <SelectTrigger>
-            <SelectValue placeholder="Select a game" />
-          </SelectTrigger>
-          <SelectContent>
-            {games?.map((g) => (
-              <SelectItem key={g.id} value={g.id}>
-                {g.name}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
+    <header>
+      <div className="flex justify-between items-center mb-4">
+        <div className="flex items-center gap-4">
+          <h1 className="font-heading text-2xl font-bold">Fame</h1>
+          <Select value={currentGameId} onValueChange={onGameChange}>
+            <SelectTrigger>
+              <SelectValue placeholder="Select a game" />
+            </SelectTrigger>
+            <SelectContent>
+              {games?.map((g) => (
+                <SelectItem key={g.id} value={g.id}>
+                  {g.name}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
+        <Button variant="destructive" onClick={onLogout}>
+          Log out
+        </Button>
       </div>
-      <Button variant="destructive" onClick={onLogout}>
-        Log out
-      </Button>
-    </div>
+      {currentGameId && <DashboardNavigation />}
+    </header>
   )
 }
