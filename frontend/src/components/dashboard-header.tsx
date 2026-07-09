@@ -24,9 +24,7 @@ export function DashboardHeader() {
     },
   })
 
-  const currentGameId: string | undefined = games?.find(
-    ({ id }) => id === gameId,
-  )?.id
+  const currentGameId: string = games?.find(({ id }) => id === gameId)?.id ?? ''
 
   function onGameChange(newValue: string) {
     navigate({

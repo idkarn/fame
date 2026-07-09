@@ -18,6 +18,7 @@ export function DashboardNavigation() {
       {tabs.map((tab) => (
         <NavLink
           {...tab}
+          key={tab.route}
           variant={tab.route === activeTab ? 'default' : 'secondary'}
         />
       ))}
