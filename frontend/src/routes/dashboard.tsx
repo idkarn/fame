@@ -10,7 +10,7 @@ export const Route = createFileRoute('/dashboard')({
 function DashboardLayout() {
   return (
     <TooltipProvider>
-      <div className="py-4 mx-auto max-w-7xl">
+      <div className="py-4 mx-auto max-w-4xl">
         <DashboardHeader />
         <Separator className="my-4" />
         <main className="">
