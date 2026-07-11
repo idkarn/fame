@@ -6,26 +6,27 @@
 
 ### Backend
 
-- Go
-- Bun ORM
-- DuckDB
-- pquerna/otp
-- golang-jwt/jwt
-- go-webauthn/webauthn
-- Echo
-- alexedwards/scs
-- ~Valkey~ Memcached
-- ~MariaDB~ Turso
+- [x] Go
+- [x] Bun ORM
+- [ ] DuckDB
+- [x] pquerna/otp
+- [x] golang-jwt/jwt
+- [ ] go-webauthn/webauthn
+- [x] Echo
+- [x] alexedwards/scs
+- [x] ~Valkey~ Memcached
+- [x] ~MariaDB~ Turso
 
 ### Frontend
 
-[x] Vite
-[x] React
-[x] @tanstack/router
-[x] shadcn/ui
-[ ] @tanstack/query
-[ ] zustand
-[x] zod
-[x] react hook form (@tanstack/table)
-[x] ESLint
-[ ] Paraglide
+- [x] Vite
+- [x] React
+- [x] @tanstack/router
+- [x] shadcn/ui
+- [x] @tanstack/query
+- [ ] zustand
+- [x] zod
+- [x] react hook form
+- [x] ESLint
+- [x] Paraglide
+- [ ] add theme-provider (with live theme detection)
