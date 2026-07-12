@@ -47,6 +47,9 @@ func listGames(c *echo.Context) error {
 		return echo.ErrBadRequest.Wrap(err)
 	}
 
+	if games == nil {
+		return c.JSON(http.StatusOK, []any{})
+	}
 	return c.JSON(http.StatusOK, games)
 }
 
