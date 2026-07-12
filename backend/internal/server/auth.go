@@ -24,6 +24,11 @@ func GetOTP(c *echo.Context) error {
 
 	var email Email
 	if err := c.Bind(&email); err != nil {
+		return c.String(http.StatusBadRequest, "wrong request format")
+	}
+
+	// todo: replace with validator
+	if email.Email == "" {
 		return c.String(http.StatusBadRequest, "email is not provided")
 	}
 
