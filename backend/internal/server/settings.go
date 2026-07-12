@@ -32,13 +32,24 @@ func getSettings(c *echo.Context) error {
 }
 
 func updateSettings(c *echo.Context) error {
+	type updateSettingsRequest struct {
+		DisplayName *string `json:"displayName"`
+		GameURL     *string `json:"gameURL"`
+		ProjectName *string `json:"projectName"`
+	}
+
 	id := c.Param("id")
 	gid, err := uuid.Parse(id)
 	if err != nil {
 		return c.String(http.StatusBadRequest, "wrong game id format")
 	}
 
-	if err := settings.SetSettings(c.Request().Context(), gid); err != nil {
+	var data updateSettingsRequest
+	if err := c.Bind(&data); err != nil {
+		return c.String(http.StatusBadRequest, "wrong body format")
+	}
+
+	if err := settings.SetSettings(c.Request().Context(), gid, data.DisplayName, data.GameURL, data.ProjectName); err != nil {
 		return echo.ErrBadRequest.Wrap(err)
 	}
 

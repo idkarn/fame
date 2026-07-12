@@ -65,10 +65,6 @@ func getGame(c *echo.Context) error {
 	return c.JSON(http.StatusOK, game)
 }
 
-func updateGame(c *echo.Context) error {
-	return c.JSON(http.StatusOK, map[string]any{})
-}
-
 func deleteGame(c *echo.Context) error {
 	return c.JSON(http.StatusOK, map[string]any{})
 }

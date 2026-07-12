@@ -23,6 +23,24 @@ func GetSettings(ctx context.Context, gid uuid.UUID) (*db.Game, error) {
 	return game, nil
 }
 
-func SetSettings(ctx context.Context, gid uuid.UUID) error {
+func SetSettings(ctx context.Context, gid uuid.UUID, displayName, gameURL, projectName *string) error {
+	q := db.Update((*db.Game)(nil))
+
+	if displayName != nil {
+		q.Set("display_name = ?", displayName)
+	}
+	if gameURL != nil {
+		q.Set("game_url = ?", gameURL)
+	}
+	if projectName != nil {
+		q.Set("project_name = ?", projectName)
+	}
+
+	if _, err := q.
+		Where("id = ?", gid).
+		Exec(ctx); err != nil {
+		return err
+	}
+
 	return nil
 }

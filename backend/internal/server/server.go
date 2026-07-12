@@ -41,7 +41,6 @@ func Setup() {
 				games.GET("/", listGames)
 				games.GET("/:id", getGame)
 				games.POST("/", newGame)
-				games.PATCH("/:id", updateGame)
 				games.DELETE("/:id", deleteGame)
 			}
 
