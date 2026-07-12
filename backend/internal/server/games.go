@@ -33,21 +33,36 @@ func newGame(c *echo.Context) error {
 		return echo.ErrBadRequest.Wrap(err)
 	}
 
-	return c.JSON(http.StatusOK, map[string]any{
-		"id":          game.ID,
-		"ownerId":     game.OwnerID,
-		"displayName": game.DisplayName,
-		"gameURL":     game.GameURL.String,
-		"projectName": game.ProjectName,
-	})
+	return c.JSON(http.StatusOK, game)
 }
 
 func listGames(c *echo.Context) error {
-	return c.JSON(http.StatusOK, map[string]any{})
+	uid, err := uuid.Parse(c.Get("user_id").(string))
+	if err != nil {
+		return echo.ErrBadRequest.Wrap(err)
+	}
+
+	games, err := games.GetAllGames(c.Request().Context(), uid)
+	if err != nil {
+		return echo.ErrBadRequest.Wrap(err)
+	}
+
+	return c.JSON(http.StatusOK, games)
 }
 
 func getGame(c *echo.Context) error {
-	return c.JSON(http.StatusOK, map[string]any{})
+	id := c.Param("id")
+	gid, err := uuid.Parse(id)
+	if err != nil {
+		return c.String(http.StatusBadRequest, "wrong game id format")
+	}
+
+	game, err := games.GetGame(c.Request().Context(), gid)
+	if err != nil {
+		return echo.ErrBadRequest.Wrap(err)
+	}
+
+	return c.JSON(http.StatusOK, game)
 }
 
 func updateGame(c *echo.Context) error {

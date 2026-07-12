@@ -1,8 +1,6 @@
 package db
 
 import (
-	"database/sql"
-
 	"github.com/google/uuid"
 	"github.com/uptrace/bun"
 )
@@ -22,13 +20,13 @@ type User struct {
 type Game struct {
 	bun.BaseModel `bun:"table:games,alias:g"`
 
-	ID          uuid.UUID      `bun:",pk,type:blob"`
-	OwnerID     uuid.UUID      `bun:"owner_id,notnull,type:blob"`
-	DisplayName string         `bun:"display_name,notnull"`
-	GameURL     sql.NullString `bun:"game_url"`
-	ProjectName string         `bun:"project_name,notnull"`
+	ID          uuid.UUID `bun:",pk,type:blob" json:"id"`
+	OwnerID     uuid.UUID `bun:"owner_id,notnull,type:blob" json:"ownerId"`
+	DisplayName string    `bun:"display_name,notnull" json:"displayName"`
+	GameURL     *string   `bun:"game_url" json:"gameUrl"`
+	ProjectName string    `bun:"project_name,notnull" json:"projectName"`
 
-	Boards []*Board `bun:"rel:has-many,join:id=game_id"`
+	Boards []*Board `bun:"rel:has-many,join:id=game_id" json:"-"`
 }
 
 // Board model
