@@ -66,5 +66,15 @@ func getGame(c *echo.Context) error {
 }
 
 func deleteGame(c *echo.Context) error {
-	return c.JSON(http.StatusOK, map[string]any{})
+	id := c.Param("id")
+	gid, err := uuid.Parse(id)
+	if err != nil {
+		return c.String(http.StatusBadRequest, "wrong game id format")
+	}
+
+	if err := games.DeleteGame(c.Request().Context(), gid); err != nil {
+		return echo.ErrBadRequest.Wrap(err)
+	}
+
+	return c.String(http.StatusOK, http.StatusText(http.StatusOK))
 }

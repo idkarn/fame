@@ -51,3 +51,12 @@ func GetAllGames(ctx context.Context, oid uuid.UUID) (*[]db.Game, error) {
 	}
 	return &games, nil
 }
+
+func DeleteGame(ctx context.Context, gid uuid.UUID) error {
+	game := &db.Game{ID: gid}
+	// todo: implement soft delete
+	if _, err := db.Delete(game).WherePK().Exec(ctx); err != nil {
+		return err
+	}
+	return nil
+}
