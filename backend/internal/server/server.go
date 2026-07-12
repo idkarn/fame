@@ -31,18 +31,36 @@ func Setup() {
 			// authn.POST("/passkey", putHandler)
 		}
 
-		protected := api.Group("")
-		protected.Use(auth.SessionAuthMiddleware)
+		dashboard := api.Group("", auth.SessionAuthMiddleware)
 		{
-			protected.GET("/me", getHandler)
-			protected.GET("/logout", Logout)
+			dashboard.GET("/me", getHandler)
+			dashboard.GET("/logout", Logout)
 
-			games := protected.Group("/games")
-			games.POST("/new", NewGame)
+			games := dashboard.Group("/games")
+			{
+				games.GET("/", listGames)
+				games.GET("/:id", getGame)
+				games.POST("/", newGame)
+				games.PATCH("/:id", updateGame)
+				games.DELETE("/:id", deleteGame)
+			}
+
+			boards := dashboard.Group("/boards")
+			{
+				boards.GET("/:id", getBoard)
+				boards.POST("/", newBoard)
+				boards.PATCH("/:id", updateBoard)
+				boards.DELETE("/:id", deleteBoard)
+			}
+
+			settings := dashboard.Group("/settings")
+			{
+				settings.GET("/:id", getSettings)
+				settings.PATCH("/:id", updateSettings)
+			}
 		}
 
-		scores := api.Group("/scores")
-		scores.Use(echojwt.WithConfig(echojwt.Config{
+		scores := api.Group("/scores", echojwt.WithConfig(echojwt.Config{
 			KeyFunc: auth.GetKeyFromJWT,
 		}))
 		{

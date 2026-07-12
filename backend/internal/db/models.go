@@ -12,4 +12,36 @@ type User struct {
 	ID     uuid.UUID `bun:",pk"`
 	Email  string    `bun:",unique"`
 	Secret string
+
+	Games []*Game `bun:"rel:has-many,join:id=owner_id"`
+}
+
+// Game model
+type Game struct {
+	bun.BaseModel `bun:"table:games,alias:g"`
+
+	ID          uuid.UUID `bun:",pk"`
+	OwnerID     uuid.UUID `bun:"owner_id,notnull"`
+	DisplayName string    `bun:"display_name,notnull"`
+	GameURL     string    `bun:"game_url"`
+	ProjectName string    `bun:"project_name,notnull"`
+
+	Boards []*Board `bun:"rel:has-many,join:id=game_id"`
+}
+
+// Board model
+type Board struct {
+	bun.BaseModel `bun:"table:boards,alias:b"`
+
+	ID     uuid.UUID `bun:",pk"`
+	GameID uuid.UUID `bun:"game_id,notnull"`
+	Name   string    `bun:",notnull"`
+}
+
+// Single score model
+type Record struct {
+	bun.BaseModel `bun:"table:records,alias:r"`
+
+	ID      uuid.UUID `bun:",pk"`
+	BoardID uuid.UUID `bun:"board_id,notnull"`
 }

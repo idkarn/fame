@@ -1,28 +1,21 @@
 package db
 
 import (
-	"context"
-
-	"github.com/google/uuid"
+	"github.com/uptrace/bun"
 )
 
-func CreateUser(ctx context.Context, email, secret string) (uuid.UUID, error) {
-	id := uuid.New()
-	_, err := db.NewInsert().Model(&User{
-		ID:     id,
-		Email:  email,
-		Secret: secret,
-	}).Exec(ctx)
-	if err != nil {
-		return id, err
-	}
-	return id, nil
+func Insert(model any) *bun.InsertQuery {
+	return db.NewInsert().Model(model)
 }
 
-func FindUser(ctx context.Context, email string) (*User, error) {
-	user := new(User)
-	if err := db.NewSelect().Model(user).Where("email = ?", email).Scan(ctx); err != nil {
-		return nil, err
-	}
-	return user, nil
+func Select(model any) *bun.SelectQuery {
+	return db.NewSelect().Model(model)
+}
+
+func Update(model any) *bun.UpdateQuery {
+	return db.NewUpdate().Model(model)
+}
+
+func Delete(model any) *bun.DeleteQuery {
+	return db.NewDelete().Model(model)
 }

@@ -4,7 +4,7 @@ import (
 	"database/sql"
 	"errors"
 	"fame/internal/cache"
-	"fame/internal/db"
+	"fame/internal/users"
 
 	"github.com/bradfitz/gomemcache/memcache"
 	"github.com/google/uuid"
@@ -17,7 +17,7 @@ var EmailAlreadyExists = errors.New("this email already exists!")
 
 // todo: refactor
 func CreateOTP(c *echo.Context, email string) (*otp.Key, error) {
-	if u, err := db.FindUser(c.Request().Context(), email); u != nil {
+	if u, err := users.FindUser(c.Request().Context(), email); u != nil {
 		return nil, EmailAlreadyExists
 	} else if !errors.Is(err, sql.ErrNoRows) {
 		return nil, err
@@ -44,7 +44,7 @@ func VerifyOTP(c *echo.Context, email, code string) (bool, error) {
 	secretItem, err := cache.Client.Get(email)
 	if err != nil {
 		if errors.Is(err, memcache.ErrCacheMiss) {
-			u, err := db.FindUser(c.Request().Context(), email)
+			u, err := users.FindUser(c.Request().Context(), email)
 			if errors.Is(err, sql.ErrNoRows) {
 				return false, EmailNotFound
 			} else if err != nil {
@@ -66,7 +66,7 @@ func VerifyOTP(c *echo.Context, email, code string) (bool, error) {
 		return false, err
 	}
 
-	db.CreateUser(c.Request().Context(), email, sec)
+	users.CreateUser(c.Request().Context(), email, sec)
 
 	return true, nil
 }
