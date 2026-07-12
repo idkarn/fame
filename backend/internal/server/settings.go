@@ -1,6 +1,7 @@
 package server
 
 import (
+	"fame/internal/auth"
 	"fame/internal/settings"
 	"net/http"
 
@@ -20,10 +21,13 @@ func getSettings(c *echo.Context) error {
 		return echo.ErrBadRequest.Wrap(err)
 	}
 
+	key := auth.NewKeyFromID(id)
+
 	return c.JSON(http.StatusOK, map[string]any{
 		"displayName": g.DisplayName,
 		"gameURL":     g.GameURL,
 		"projectName": g.ProjectName,
+		"token":       key,
 	})
 }
 
