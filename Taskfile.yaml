@@ -9,3 +9,7 @@ tasks:
     cmds:
       - go run .
     silent: true
+  db:
+    dir: backend
+    cmds:
+      - turso dev --db-file app.db
