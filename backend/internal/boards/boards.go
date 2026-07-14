@@ -22,3 +22,15 @@ func NewBoard(ctx context.Context, gid uuid.UUID, name string) (*db.Board, error
 
 	return b, nil
 }
+
+// todo: exclude GameID from response
+func GetBoard(ctx context.Context, bid uuid.UUID) (*db.Board, error) {
+	b := new(db.Board)
+	if err := db.
+		Select(b).
+		Where("id = ?", bid).
+		Scan(ctx); err != nil {
+		return nil, err
+	}
+	return b, nil
+}

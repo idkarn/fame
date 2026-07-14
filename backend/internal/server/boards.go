@@ -13,7 +13,18 @@ func listBoards(c *echo.Context) error {
 }
 
 func getBoard(c *echo.Context) error {
-	return c.JSON(http.StatusOK, map[string]any{})
+	id := c.Param("id")
+	bid, err := uuid.Parse(id)
+	if err != nil {
+		return c.String(http.StatusBadRequest, "wrong board id format")
+	}
+
+	b, err := boards.GetBoard(c.Request().Context(), bid)
+	if err != nil {
+		return echo.ErrBadRequest.Wrap(err)
+	}
+
+	return c.JSON(http.StatusOK, b)
 }
 
 func newBoard(c *echo.Context) error {

@@ -54,6 +54,8 @@ func listGames(c *echo.Context) error {
 }
 
 func getGame(c *echo.Context) error {
+	// todo: add flag for boards details
+
 	id := c.Param("id")
 	gid, err := uuid.Parse(id)
 	if err != nil {
