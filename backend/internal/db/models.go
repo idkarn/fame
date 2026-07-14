@@ -26,7 +26,7 @@ type Game struct {
 	GameURL     *string   `bun:"game_url" json:"gameUrl"`
 	ProjectName string    `bun:"project_name,notnull" json:"projectName"`
 
-	Boards []*Board `bun:"rel:has-many,join:id=game_id" json:"-"`
+	Boards []*Board `bun:"rel:has-many,join:id=game_id" json:"boards"`
 }
 
 // Board model

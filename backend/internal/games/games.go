@@ -27,9 +27,12 @@ func NewGame(ctx context.Context, oid uuid.UUID, projectName string) (*db.Game, 
 }
 
 func GetGame(ctx context.Context, gid uuid.UUID) (*db.Game, error) {
-	game := new(db.Game)
+	game := &db.Game{
+		Boards: make([]*db.Board, 0),
+	}
 	if err := db.
 		Select(game).
+		Relation("Boards").
 		Where("id = ?", gid).
 		Scan(ctx); errors.Is(err, sql.ErrNoRows) {
 		return nil, errors.New("not found")
