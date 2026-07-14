@@ -57,7 +57,26 @@ func newBoard(c *echo.Context) error {
 }
 
 func updateBoard(c *echo.Context) error {
-	return c.JSON(http.StatusOK, map[string]any{})
+	type updateBoardRequest struct {
+		Name *string `json:"name"`
+	}
+
+	id := c.Param("id")
+	bid, err := uuid.Parse(id)
+	if err != nil {
+		return c.String(http.StatusBadRequest, "wrong board id format")
+	}
+
+	var data updateBoardRequest
+	if err := c.Bind(&data); err != nil {
+		return c.String(http.StatusBadRequest, "wrong body format")
+	}
+
+	if err := boards.UpdateBoard(c.Request().Context(), bid, data.Name); err != nil {
+		return echo.ErrBadRequest.Wrap(err)
+	}
+
+	return c.String(http.StatusOK, http.StatusText(http.StatusOK))
 }
 
 func deleteBoard(c *echo.Context) error {

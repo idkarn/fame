@@ -35,6 +35,22 @@ func GetBoard(ctx context.Context, bid uuid.UUID) (*db.Board, error) {
 	return b, nil
 }
 
+func UpdateBoard(ctx context.Context, bid uuid.UUID, name *string) error {
+	q := db.Update((*db.Board)(nil))
+
+	if name != nil {
+		q.Set("name = ?", name)
+	}
+
+	if _, err := q.
+		Where("id = ?", bid).
+		Exec(ctx); err != nil {
+		return err
+	}
+
+	return nil
+}
+
 func DeleteBoard(ctx context.Context, bid uuid.UUID) error {
 	b := &db.Board{ID: bid}
 	if _, err := db.
