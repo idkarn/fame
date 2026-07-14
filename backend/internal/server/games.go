@@ -1,6 +1,8 @@
 package server
 
 import (
+	"database/sql"
+	"errors"
 	"fame/internal/games"
 	"net/http"
 
@@ -63,7 +65,9 @@ func getGame(c *echo.Context) error {
 	}
 
 	game, err := games.GetGame(c.Request().Context(), gid)
-	if err != nil {
+	if errors.Is(err, sql.ErrNoRows) {
+		return c.String(http.StatusNotFound, "not found")
+	} else if err != nil {
 		return echo.ErrBadRequest.Wrap(err)
 	}
 

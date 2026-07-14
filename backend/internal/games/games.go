@@ -34,9 +34,7 @@ func GetGame(ctx context.Context, gid uuid.UUID) (*db.Game, error) {
 		Select(game).
 		Relation("Boards").
 		Where("id = ?", gid).
-		Scan(ctx); errors.Is(err, sql.ErrNoRows) {
-		return nil, errors.New("not found")
-	} else if err != nil {
+		Scan(ctx); err != nil {
 		return nil, err
 	}
 	return game, nil

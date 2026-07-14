@@ -1,6 +1,8 @@
 package server
 
 import (
+	"database/sql"
+	"errors"
 	"fame/internal/boards"
 	"net/http"
 
@@ -20,7 +22,9 @@ func getBoard(c *echo.Context) error {
 	}
 
 	b, err := boards.GetBoard(c.Request().Context(), bid)
-	if err != nil {
+	if errors.Is(err, sql.ErrNoRows) {
+		return c.String(http.StatusNotFound, "not found")
+	} else if err != nil {
 		return echo.ErrBadRequest.Wrap(err)
 	}
 
