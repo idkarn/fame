@@ -34,3 +34,14 @@ func GetBoard(ctx context.Context, bid uuid.UUID) (*db.Board, error) {
 	}
 	return b, nil
 }
+
+func DeleteBoard(ctx context.Context, bid uuid.UUID) error {
+	b := &db.Board{ID: bid}
+	if _, err := db.
+		Delete(b).
+		WherePK().
+		Exec(ctx); err != nil {
+		return err
+	}
+	return nil
+}

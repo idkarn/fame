@@ -57,5 +57,16 @@ func updateBoard(c *echo.Context) error {
 }
 
 func deleteBoard(c *echo.Context) error {
-	return c.JSON(http.StatusOK, map[string]any{})
+	id := c.Param("id")
+	bid, err := uuid.Parse(id)
+	if err != nil {
+		return c.String(http.StatusBadRequest, "wrong board id format")
+	}
+
+	if err := boards.DeleteBoard(c.Request().Context(), bid); err != nil {
+		return echo.ErrBadRequest.Wrap(err)
+	}
+
+	return c.String(http.StatusOK, http.StatusText(http.StatusOK))
+
 }
