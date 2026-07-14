@@ -10,10 +10,6 @@ import (
 	"github.com/labstack/echo/v5"
 )
 
-func listBoards(c *echo.Context) error {
-	return c.JSON(http.StatusOK, map[string]any{})
-}
-
 func getBoard(c *echo.Context) error {
 	id := c.Param("id")
 	bid, err := uuid.Parse(id)
