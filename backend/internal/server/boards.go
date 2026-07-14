@@ -1,8 +1,10 @@
 package server
 
 import (
+	"fame/internal/boards"
 	"net/http"
 
+	"github.com/google/uuid"
 	"github.com/labstack/echo/v5"
 )
 
@@ -15,7 +17,28 @@ func getBoard(c *echo.Context) error {
 }
 
 func newBoard(c *echo.Context) error {
-	return c.JSON(http.StatusOK, map[string]any{})
+	type newBoardRequest struct {
+		Name   string    `json:"name"`
+		GameID uuid.UUID `json:"gameId"`
+	}
+
+	var data newBoardRequest
+	if err := c.Bind(&data); err != nil {
+		return c.String(http.StatusBadRequest, "wrong body format")
+	}
+
+	if data.GameID == uuid.Nil {
+		return c.String(http.StatusBadRequest, "gameId must be provided")
+	} else if data.Name == "" {
+		return c.String(http.StatusBadRequest, "name must be provided")
+	}
+
+	b, err := boards.NewBoard(c.Request().Context(), data.GameID, data.Name)
+	if err != nil {
+		return echo.ErrBadRequest.Wrap(err)
+	}
+
+	return c.JSON(http.StatusCreated, b)
 }
 
 func updateBoard(c *echo.Context) error {

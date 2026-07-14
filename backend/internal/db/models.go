@@ -33,9 +33,9 @@ type Game struct {
 type Board struct {
 	bun.BaseModel `bun:"table:boards,alias:b"`
 
-	ID     uuid.UUID `bun:",pk,type:blob"`
-	GameID uuid.UUID `bun:"game_id,notnull,type:blob"`
-	Name   string    `bun:",notnull"`
+	ID     uuid.UUID `bun:",pk,type:blob" json:"id"`
+	GameID uuid.UUID `bun:"game_id,notnull,type:blob" json:"gameId"`
+	Name   string    `bun:",notnull" json:"name"`
 }
 
 // Single score model
