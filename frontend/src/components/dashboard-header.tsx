@@ -9,19 +9,14 @@ import {
 import { useQuery } from '@tanstack/react-query'
 import { Button } from './ui/button'
 import { DashboardNavigation } from './dashboard-navigation'
+import { getAllGames } from '#/api/games'
 
 export function DashboardHeader() {
   const navigate = useNavigate()
   const { id: gameId } = useParams({ strict: false })
   const { data: games } = useQuery({
-    queryKey: ['game'],
-    queryFn: () => {
-      return [
-        { name: 'first', id: 'first' },
-        { name: 'test', id: 'test' },
-        { name: 'example', id: 'example' },
-      ]
-    },
+    queryKey: ['games'],
+    queryFn: async () => await getAllGames(),
   })
 
   const currentGameId: string = games?.find(({ id }) => id === gameId)?.id ?? ''
@@ -53,7 +48,7 @@ export function DashboardHeader() {
             <SelectContent>
               {games?.map((g) => (
                 <SelectItem key={g.id} value={g.id}>
-                  {g.name}
+                  {g.displayName}
                 </SelectItem>
               ))}
             </SelectContent>

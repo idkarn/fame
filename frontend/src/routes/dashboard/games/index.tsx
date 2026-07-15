@@ -1,3 +1,5 @@
+import { getAllGames } from '#/api/games'
+import { useQuery } from '@tanstack/react-query'
 import { createFileRoute, Link } from '@tanstack/react-router'
 
 export const Route = createFileRoute('/dashboard/games/')({
@@ -5,7 +7,18 @@ export const Route = createFileRoute('/dashboard/games/')({
 })
 
 function RouteComponent() {
-  return <div className="">
-    <Link to="/dashboard/games/$id" params={{ id: 'example' }}>Example</Link>
-  </div>
+  const { data } = useQuery({
+    queryKey: ['games'],
+    queryFn: async () => await getAllGames(),
+  })
+
+  return (
+    <div className="">
+      {data?.map((item) => (
+        <Link key={item.id} to="/dashboard/games/$id" params={{ id: item.id }}>
+          {item.displayName}
+        </Link>
+      ))}
+    </div>
+  )
 }
