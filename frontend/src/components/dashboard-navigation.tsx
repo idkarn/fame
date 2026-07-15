@@ -1,4 +1,4 @@
-import { Link, useLocation } from '@tanstack/react-router'
+import { Link, useRouterState } from '@tanstack/react-router'
 import { buttonVariants } from './ui/button'
 
 const tabs = [
@@ -9,9 +9,12 @@ const tabs = [
 ]
 
 export function DashboardNavigation() {
-  const location = useLocation()
-  const activeTab =
-    location.pathname.match(/games\/[a-zA-Z0-9]+\/([a-z]+)/)?.[1] ?? ''
+  const activeTab = ((item = '') => {
+    if (!tabs.map((tab) => tab.route).includes(item)) {
+      item = ''
+    }
+    return item
+  })(useRouterState().location.pathname.split('/').pop())
 
   return (
     <nav className="flex items-center gap-1">
