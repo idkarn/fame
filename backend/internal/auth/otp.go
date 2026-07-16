@@ -7,7 +7,6 @@ import (
 	"fame/internal/users"
 
 	"github.com/bradfitz/gomemcache/memcache"
-	"github.com/google/uuid"
 	"github.com/labstack/echo/v5"
 	"github.com/pquerna/otp"
 	"github.com/pquerna/otp/totp"
@@ -62,11 +61,19 @@ func VerifyOTP(c *echo.Context, email, code string) (bool, error) {
 		return false, nil
 	}
 
-	if err := AuthorizeUser(c, uuid.NewString()); errors.Is(err, AlreadyAuthorized) {
+	u, err := users.FindUser(c.Request().Context(), email)
+	if errors.Is(err, sql.ErrNoRows) {
+		u.ID, err = users.CreateUser(c.Request().Context(), email, sec)
+		if err != nil {
+			return false, err
+		}
+	} else if err != nil {
 		return false, err
 	}
 
-	users.CreateUser(c.Request().Context(), email, sec)
+	if err := AuthorizeUser(c, u.ID.String()); errors.Is(err, AlreadyAuthorized) {
+		return false, err
+	}
 
 	return true, nil
 }
