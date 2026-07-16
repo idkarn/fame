@@ -43,12 +43,18 @@ export const GET = async <T extends object | string>(route: string) =>
 export const POST = async <T extends object | string>(
   route: string,
   body: object,
-) => await request<T>('POST', `${API_BASE}${route}`, JSON.stringify(body))
+) =>
+  await request<T>('POST', `${API_BASE}${route}`, JSON.stringify(body), {
+    'Content-Type': 'application/json',
+  })
 
 export const PATCH = async <T extends object | string>(
   route: string,
   body: object,
-) => await request<T>('PATCH', `${API_BASE}${route}`, JSON.stringify(body))
+) =>
+  await request<T>('PATCH', `${API_BASE}${route}`, JSON.stringify(body), {
+    'Content-Type': 'application/json',
+  })
 
 export const DELETE = async <T extends object | string>(route: string) =>
   await request<T>('DELETE', `${API_BASE}${route}`)

@@ -1,3 +1,4 @@
+import { getSettings, setSettings } from '#/api/settings'
 import {
   AlertDialog,
   AlertDialogAction,
@@ -24,12 +25,11 @@ import {
   FieldError,
   FieldGroup,
   FieldLabel,
-  FieldSeparator,
 } from '#/components/ui/field'
 import { Input } from '#/components/ui/input'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { useQuery } from '@tanstack/react-query'
-import { createFileRoute, Link } from '@tanstack/react-router'
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
+import { createFileRoute, Link, useParams } from '@tanstack/react-router'
 import { Trash2Icon } from 'lucide-react'
 import type { ReactNode } from 'react'
 import { Controller, useForm } from 'react-hook-form'
@@ -43,35 +43,45 @@ export const Route = createFileRoute('/dashboard/games/$id/config')({
 const formSchema = z.object({
   projectName: z.string().max(32),
   displayName: z.string().max(32),
-  backURL: z.url().max(255).optional(),
-  background: z.hex(),
+  gameUrl: z.url().max(255).optional(),
 })
 
+type FormSchemaT = z.infer<typeof formSchema>
+
+const initialData = {
+  displayName: '',
+  gameUrl: '',
+  projectName: '',
+  token: '',
+}
+
 function RouteComponent() {
+  const queryClient = useQueryClient()
+  const gameId = useParams({ from: '/dashboard/games/$id/config' }).id
+
   const { data } = useQuery({
-    queryKey: ['config'],
-    queryFn: async () => {
-      const resp = await fetch('/config', {
-        headers: {
-          'Content-Type': 'application/json',
-        },
-      })
-      if (!resp.ok) {
-        console.log(await resp.text())
-        throw new Error('something went wrong!')
-      }
-      return (await resp.json()) as z.infer<typeof formSchema>
+    queryKey: ['config', gameId],
+    queryFn: () => getSettings(gameId),
+    initialData,
+  })
+
+  const saveSettings = useMutation({
+    mutationFn: (newSettings: FormSchemaT) => setSettings(gameId, newSettings),
+    onSuccess: () =>
+      Promise.all([
+        queryClient.invalidateQueries({ queryKey: ['config', gameId] }),
+        queryClient.invalidateQueries({ queryKey: ['games'] }),
+      ]),
+  })
+
+  const { handleSubmit, control } = useForm({
+    resolver: zodResolver(formSchema),
+    values: {
+      gameUrl: data.gameUrl,
+      displayName: data.displayName,
+      projectName: data.projectName,
     },
   })
-
-  const form = useForm({
-    resolver: zodResolver(formSchema),
-    defaultValues: data,
-  })
-
-  function onSubmit(data: z.infer<typeof formSchema>) {
-    console.log(data)
-  }
 
   return (
     <div>
@@ -79,12 +89,12 @@ function RouteComponent() {
         Game settings
       </h2>
       <form
-        onSubmit={form.handleSubmit(onSubmit)}
+        onSubmit={handleSubmit((v) => saveSettings.mutate(v))}
         className="flex flex-col gap-4"
       >
         <SettingsFormCard
           title="Public"
-          formControl={form.control}
+          formControl={control}
           fields={[
             {
               id: 'displayName',
@@ -93,7 +103,7 @@ function RouteComponent() {
               description: 'The title used for public leadboard page',
             },
             {
-              id: 'backURL',
+              id: 'gameUrl',
               label: 'Game URL',
               placeholder: 'tetris://main',
               description:
@@ -103,7 +113,7 @@ function RouteComponent() {
         />
         <SettingsFormCard
           title="Internal"
-          formControl={form.control}
+          formControl={control}
           fields={[
             {
               id: 'projectName',
@@ -114,6 +124,9 @@ function RouteComponent() {
           ]}
           footer={<DeleteDialog />}
         />
+        <Field>
+          <Button type="submit">Save</Button>
+        </Field>
       </form>
     </div>
   )
@@ -121,9 +134,9 @@ function RouteComponent() {
 
 interface SettingsFormCardProps {
   title: string
-  formControl: Control<z.infer<typeof formSchema>>
+  formControl: Control<FormSchemaT>
   fields: {
-    id: keyof z.infer<typeof formSchema>
+    id: keyof FormSchemaT
     label: string
     placeholder?: string
     description?: string
