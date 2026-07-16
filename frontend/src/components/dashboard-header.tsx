@@ -48,7 +48,7 @@ export function DashboardHeader() {
             <SelectContent>
               {games?.map((g) => (
                 <SelectItem key={g.id} value={g.id}>
-                  {g.displayName}
+                  {g.projectName}
                 </SelectItem>
               ))}
             </SelectContent>
