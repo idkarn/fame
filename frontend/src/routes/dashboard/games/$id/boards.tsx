@@ -1,4 +1,4 @@
-import { deleteBoard, updateBoard } from '#/api/boards'
+import { deleteBoard, updateBoard, createBoard } from '#/api/boards'
 import type { Board } from '#/api/boards'
 import { getGame } from '#/api/games'
 import {
@@ -21,6 +21,7 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
+  DialogTrigger,
 } from '#/components/ui/dialog'
 import {
   DropdownMenu,
@@ -74,9 +75,12 @@ function RouteComponent() {
 
   return (
     <div>
-      <h2 className="scroll-m-20 font-heading pb-2 text-3xl font-semibold tracking-tight first:mt-0 mb-2">
-        Boards
-      </h2>
+      <div className="flex justify-between">
+        <h2 className="scroll-m-20 font-heading pb-2 text-3xl font-semibold tracking-tight first:mt-0 mb-2">
+          Boards
+        </h2>
+        <NewBoardDialog />
+      </div>
       <Table>
         <TableCaption>
           This is list of all active boards used by the game
@@ -283,6 +287,90 @@ function BoardItemRenameDialog() {
               <Button variant="outline">Cancel</Button>
             </DialogClose>
             <Button type="submit">Save</Button>
+          </DialogFooter>
+        </form>
+      </DialogContent>
+    </Dialog>
+  )
+}
+
+const newBoardFormSchema = z.object({
+  name: z.string().max(32).nonempty(),
+})
+
+function NewBoardDialog() {
+  const queryClient = useQueryClient()
+  const gameId = useParams({
+    from: '/dashboard/games/$id/boards',
+  }).id
+
+  const [open, setOpen] = useState(false)
+
+  const newBoard = useMutation({
+    mutationFn: (name: string) => createBoard(gameId, name),
+    onSuccess: () => {
+      setOpen(false)
+      queryClient.invalidateQueries({
+        queryKey: ['game', gameId],
+      })
+    },
+  })
+
+  const { control, handleSubmit, reset } = useForm({
+    resolver: zodResolver(newBoardFormSchema),
+    defaultValues: {
+      name: '',
+    },
+  })
+
+  useEffect(() => {
+    if (open) reset()
+    newBoard.reset()
+  }, [open, reset])
+
+  return (
+    <Dialog open={open} onOpenChange={setOpen}>
+      <DialogTrigger asChild>
+        <Button>New board</Button>
+      </DialogTrigger>
+      <DialogContent>
+        <form onSubmit={handleSubmit(({ name }) => newBoard.mutate(name))}>
+          <DialogHeader>
+            <DialogTitle>New board</DialogTitle>
+            <DialogDescription>
+              You can create new board for separate ranking
+            </DialogDescription>
+          </DialogHeader>
+          <FieldGroup>
+            <Controller
+              control={control}
+              name="name"
+              render={({ field, fieldState }) => (
+                <Field data-invalid={fieldState.invalid}>
+                  <FieldLabel htmlFor={field.name}>Name</FieldLabel>
+                  <Input
+                    {...field}
+                    id={field.name}
+                    aria-invalid={fieldState.invalid}
+                    placeholder="Tetris"
+                  />
+                  <FieldDescription>Name for new board</FieldDescription>
+                  {fieldState.invalid && (
+                    <FieldError errors={[fieldState.error]} />
+                  )}
+                </Field>
+              )}
+            />
+          </FieldGroup>
+          <DialogFooter>
+            <DialogClose asChild>
+              <Button variant="outline" disabled={newBoard.isPending}>
+                Cancel
+              </Button>
+            </DialogClose>
+            <Button type="submit" disabled={newBoard.isPending}>
+              {newBoard.isPending ? 'Creating...' : 'Submit'}
+            </Button>
           </DialogFooter>
         </form>
       </DialogContent>

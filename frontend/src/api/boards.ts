@@ -10,7 +10,10 @@ export async function getBoard(id: string): Promise<Board> {
   return await GET(`/boards/${id}`)
 }
 
-export async function crateBoard(gameId: string, name: string): Promise<Board> {
+export async function createBoard(
+  gameId: string,
+  name: string,
+): Promise<Board> {
   return await POST('/boards/', {
     gameId,
     name,
