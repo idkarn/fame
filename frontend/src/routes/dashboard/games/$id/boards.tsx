@@ -1,8 +1,7 @@
-import { deleteBoard } from '#/api/boards'
+import { deleteBoard, updateBoard } from '#/api/boards'
 import type { Board } from '#/api/boards'
 import { getGame } from '#/api/games'
 import {
-  AlertDialogTrigger,
   AlertDialogContent,
   AlertDialogHeader,
   AlertDialogMedia,
@@ -15,12 +14,29 @@ import {
 } from '#/components/ui/alert-dialog'
 import { Button } from '#/components/ui/button'
 import {
+  Dialog,
+  DialogClose,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from '#/components/ui/dialog'
+import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '#/components/ui/dropdown-menu'
+import {
+  Field,
+  FieldDescription,
+  FieldError,
+  FieldGroup,
+  FieldLabel,
+} from '#/components/ui/field'
+import { Input } from '#/components/ui/input'
 import {
   Table,
   TableBody,
@@ -30,6 +46,7 @@ import {
   TableHeader,
   TableRow,
 } from '#/components/ui/table'
+import { zodResolver } from '@hookform/resolvers/zod'
 import {
   useMutation,
   useQueryClient,
@@ -37,6 +54,9 @@ import {
 } from '@tanstack/react-query'
 import { createFileRoute, useParams } from '@tanstack/react-router'
 import { MoreHorizontalIcon, Trash2Icon } from 'lucide-react'
+import { createContext, useContext, useEffect, useState } from 'react'
+import { Controller, useForm } from 'react-hook-form'
+import z from 'zod'
 
 export const Route = createFileRoute('/dashboard/games/$id/boards')({
   component: RouteComponent,
@@ -84,20 +104,51 @@ interface BoardItemProps {
   idx: number
 }
 
+type BoardItemContextType = {
+  remove: () => void
+  rename: (name: string) => void
+  isRenameOpen: boolean
+  setRenameOpen: (v: boolean) => void
+  initialName: string
+}
+
+const BoardItemContext = createContext({} as BoardItemContextType)
+
 // todo: move delete alert into shared component
 
 function BoardItem({ board, idx }: BoardItemProps) {
   const queryClient = useQueryClient()
 
+  const [isRenameOpen, setRenameOpen] = useState(false)
+
   const remove = useMutation({
     mutationFn: () => deleteBoard(board.id),
     onSuccess: () =>
-      Promise.all([
-        queryClient.invalidateQueries({
-          queryKey: ['game', board.gameId],
-        }),
-      ]),
+      queryClient.invalidateQueries({
+        queryKey: ['game', board.gameId],
+      }),
   })
+
+  const rename = useMutation({
+    mutationFn: (name: string) =>
+      updateBoard(board.id, {
+        name: name,
+      }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: ['game', board.gameId],
+      })
+      setRenameOpen(false)
+    },
+  })
+
+  const context: BoardItemContextType = {
+    isRenameOpen,
+    setRenameOpen,
+    remove: remove.mutate,
+    rename: rename.mutate,
+    initialName: board.name,
+  }
 
   return (
     <TableRow>
@@ -105,49 +156,136 @@ function BoardItem({ board, idx }: BoardItemProps) {
       <TableCell>&hellip;{board.id.slice(board.id.length - 4)}</TableCell> */}
       <TableCell>{board.name}</TableCell>
       <TableCell className="text-right">
-        <AlertDialog>
-          <DropdownMenu>
-            <DropdownMenuTrigger>
-              <Button variant="ghost" size="icon" className="size-8">
-                <MoreHorizontalIcon />
-                <span className="sr-only">Open menu</span>
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end">
-              <DropdownMenuItem disabled>Edit</DropdownMenuItem>
-              <DropdownMenuItem disabled>Open</DropdownMenuItem>
-              <DropdownMenuItem>Rename</DropdownMenuItem>
-              <DropdownMenuSeparator />
-              <AlertDialogTrigger asChild>
-                <DropdownMenuItem variant="destructive">
-                  Delete
-                </DropdownMenuItem>
-              </AlertDialogTrigger>
-            </DropdownMenuContent>
-          </DropdownMenu>
-          <AlertDialogContent size="sm">
-            <AlertDialogHeader>
-              <AlertDialogMedia className="bg-destructive/10 text-destructive dark:bg-destructive/20 dark:text-destructive">
-                <Trash2Icon />
-              </AlertDialogMedia>
-              <AlertDialogTitle>Delete board?</AlertDialogTitle>
-              <AlertDialogDescription>
-                This will permanently delete this board and all its records from
-                the platform.
-              </AlertDialogDescription>
-            </AlertDialogHeader>
-            <AlertDialogFooter>
-              <AlertDialogCancel variant="outline">Cancel</AlertDialogCancel>
-              <AlertDialogAction
-                variant="destructive"
-                onClick={() => remove.mutate()}
-              >
-                Delete
-              </AlertDialogAction>
-            </AlertDialogFooter>
-          </AlertDialogContent>
-        </AlertDialog>
+        <BoardItemContext.Provider value={context}>
+          <BoardItemMenu />
+        </BoardItemContext.Provider>
       </TableCell>
     </TableRow>
+  )
+}
+
+function BoardItemMenu() {
+  const [isDeleteOpen, setDeleteOpen] = useState(false)
+  const { setRenameOpen, remove } = useContext(BoardItemContext)
+
+  return (
+    <>
+      <DropdownMenu>
+        <DropdownMenuTrigger>
+          <Button variant="ghost" size="icon" className="size-8">
+            <MoreHorizontalIcon />
+            <span className="sr-only">Open menu</span>
+          </Button>
+        </DropdownMenuTrigger>
+        <DropdownMenuContent align="end">
+          <DropdownMenuItem disabled>Edit</DropdownMenuItem>
+          <DropdownMenuItem disabled>Open</DropdownMenuItem>
+          <DropdownMenuItem onSelect={() => setRenameOpen(true)}>
+            Rename
+          </DropdownMenuItem>
+          <DropdownMenuSeparator />
+          <DropdownMenuItem
+            variant="destructive"
+            onSelect={() => setDeleteOpen(true)}
+          >
+            Delete
+          </DropdownMenuItem>
+        </DropdownMenuContent>
+      </DropdownMenu>
+
+      <AlertDialog open={isDeleteOpen} onOpenChange={setDeleteOpen}>
+        <AlertDialogContent size="sm">
+          <AlertDialogHeader>
+            <AlertDialogMedia className="bg-destructive/10 text-destructive dark:bg-destructive/20 dark:text-destructive">
+              <Trash2Icon />
+            </AlertDialogMedia>
+            <AlertDialogTitle>Delete board?</AlertDialogTitle>
+            <AlertDialogDescription>
+              This will permanently delete this board and all its records from
+              the platform.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel variant="outline">Cancel</AlertDialogCancel>
+            <AlertDialogAction variant="destructive" onClick={remove}>
+              Delete
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
+      <BoardItemRenameDialog />
+    </>
+  )
+}
+
+const renameFormSchema = z.object({
+  name: z.string().max(32).nonempty(),
+})
+
+function BoardItemRenameDialog() {
+  const {
+    isRenameOpen: isOpen,
+    setRenameOpen: setOpen,
+    rename,
+    initialName,
+  } = useContext(BoardItemContext)
+
+  const { control, handleSubmit, reset } = useForm({
+    resolver: zodResolver(renameFormSchema),
+    defaultValues: {
+      name: initialName,
+    },
+  })
+
+  useEffect(() => {
+    if (!isOpen)
+      reset({
+        name: initialName,
+      })
+  }, [isOpen, reset, initialName])
+
+  return (
+    <Dialog open={isOpen} onOpenChange={setOpen}>
+      <DialogContent>
+        <form onSubmit={handleSubmit(({ name }) => rename(name))}>
+          <DialogHeader>
+            <DialogTitle>Rename board</DialogTitle>
+            <DialogDescription>
+              You can change the board's name if you wanna. This name is used
+              both inside dashboard and at public leaderboard
+            </DialogDescription>
+          </DialogHeader>
+          <FieldGroup>
+            <Controller
+              control={control}
+              name="name"
+              render={({ field, fieldState }) => (
+                <Field data-invalid={fieldState.invalid}>
+                  <FieldLabel htmlFor={field.name}>Name</FieldLabel>
+                  <Input
+                    {...field}
+                    id={field.name}
+                    aria-invalid={fieldState.invalid}
+                    placeholder="Best of '87"
+                    autoComplete="off"
+                  />
+                  <FieldDescription>Public name for the board</FieldDescription>
+                  {fieldState.invalid && (
+                    <FieldError errors={[fieldState.error]} />
+                  )}
+                </Field>
+              )}
+            />
+          </FieldGroup>
+          <DialogFooter>
+            <DialogClose asChild>
+              <Button variant="outline">Cancel</Button>
+            </DialogClose>
+            <Button type="submit">Save</Button>
+          </DialogFooter>
+        </form>
+      </DialogContent>
+    </Dialog>
   )
 }
