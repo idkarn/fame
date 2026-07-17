@@ -1,3 +1,4 @@
+import { deleteGame } from '#/api/games'
 import { getSettings, setSettings } from '#/api/settings'
 import {
   AlertDialog,
@@ -29,7 +30,12 @@ import {
 import { Input } from '#/components/ui/input'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
-import { createFileRoute, Link, useParams } from '@tanstack/react-router'
+import {
+  createFileRoute,
+  Link,
+  useNavigate,
+  useParams,
+} from '@tanstack/react-router'
 import { Trash2Icon } from 'lucide-react'
 import type { ReactNode } from 'react'
 import { Controller, useForm } from 'react-hook-form'
@@ -187,6 +193,27 @@ function SettingsFormCard({
 }
 
 function DeleteDialog() {
+  const queryClient = useQueryClient()
+  const navigate = useNavigate()
+  const gameId = useParams({
+    from: '/dashboard/games/$id/config',
+  }).id
+
+  const remove = useMutation({
+    mutationFn: () => deleteGame(gameId),
+    onSuccess: () => {
+      queryClient.removeQueries({
+        queryKey: ['game', gameId],
+      })
+      queryClient.invalidateQueries({
+        queryKey: ['games'],
+      })
+      navigate({
+        to: '/dashboard/games',
+      })
+    },
+  })
+
   return (
     <AlertDialog>
       <AlertDialogTrigger asChild>
@@ -202,7 +229,10 @@ function DeleteDialog() {
           <AlertDialogTitle>Delete game?</AlertDialogTitle>
           <AlertDialogDescription>
             This will permanently delete this game from the platform. View{' '}
-            <Link to="/dashboard/games/$id/boards" from="/dashboard/games/$id">
+            <Link
+              to="/dashboard/games/$id/boards"
+              from="/dashboard/games/$id/config"
+            >
               Boards
             </Link>{' '}
             to delete any boards linked to this game.
@@ -210,7 +240,12 @@ function DeleteDialog() {
         </AlertDialogHeader>
         <AlertDialogFooter>
           <AlertDialogCancel variant="outline">Cancel</AlertDialogCancel>
-          <AlertDialogAction variant="destructive">Delete</AlertDialogAction>
+          <AlertDialogAction
+            variant="destructive"
+            onClick={() => remove.mutate()}
+          >
+            Delete
+          </AlertDialogAction>
         </AlertDialogFooter>
       </AlertDialogContent>
     </AlertDialog>
