@@ -50,6 +50,12 @@ func Setup() {
 				boards.POST("/", newBoard)
 				boards.PATCH("/:id", updateBoard)
 				boards.DELETE("/:id", deleteBoard)
+
+				records := boards.Group("/:id/records")
+				{
+					records.GET("/:pid", findRecord)
+					records.DELETE("/:pid", deleteRecord)
+				}
 			}
 
 			settings := dashboard.Group("/settings")
@@ -63,7 +69,7 @@ func Setup() {
 			KeyFunc: auth.GetKeyFromJWT,
 		}))
 		{
-			scores.POST("/", Submit)
+			scores.POST("/", submit)
 		}
 	}
 }

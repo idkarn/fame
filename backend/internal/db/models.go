@@ -47,6 +47,6 @@ type Record struct {
 	BoardID           uuid.UUID `bun:"board_id,pk,type:blob" json:"boardId"`
 	PlayerID          string    `bun:"player_id,pk" json:"playerId"`
 	PlayerDisplayName string    `bun:"player_name,notnull" json:"playerName"`
-	Score             int64     `bun:"score,notnull"`
-	SubmittedAt       time.Time `bun:"submitted_at,nullzero,notnull,default:current_timestamp"`
+	Score             int64     `bun:"score,notnull" json:"score"`
+	SubmittedAt       time.Time `bun:"submitted_at,nullzero,notnull,default:current_timestamp" json:"submittedAt"`
 }
