@@ -1,6 +1,8 @@
 package db
 
 import (
+	"time"
+
 	"github.com/google/uuid"
 	"github.com/uptrace/bun"
 )
@@ -42,6 +44,9 @@ type Board struct {
 type Record struct {
 	bun.BaseModel `bun:"table:records,alias:r"`
 
-	ID      uuid.UUID `bun:",pk"`
-	BoardID uuid.UUID `bun:"board_id,notnull"`
+	BoardID           uuid.UUID `bun:"board_id,pk,type:blob" json:"boardId"`
+	PlayerID          string    `bun:"player_id,pk" json:"playerId"`
+	PlayerDisplayName string    `bun:"player_name,notnull" json:"playerName"`
+	Score             int64     `bun:"score,notnull"`
+	SubmittedAt       time.Time `bun:"submitted_at,nullzero,notnull,default:current_timestamp"`
 }

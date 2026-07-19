@@ -63,7 +63,7 @@ func Setup() {
 			KeyFunc: auth.GetKeyFromJWT,
 		}))
 		{
-			scores.POST("/submit", Submit)
+			scores.POST("/", Submit)
 		}
 	}
 }
