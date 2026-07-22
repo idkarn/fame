@@ -1,6 +1,7 @@
 import { deleteBoard, updateBoard, createBoard } from '#/api/boards'
 import type { Board } from '#/api/boards'
 import { getGame } from '#/api/games'
+import { BoardView } from '#/components/board-view'
 import {
   AlertDialogContent,
   AlertDialogHeader,
@@ -114,6 +115,7 @@ type BoardItemContextType = {
   isRenameOpen: boolean
   setRenameOpen: (v: boolean) => void
   initialName: string
+  boardId: string
 }
 
 const BoardItemContext = createContext({} as BoardItemContextType)
@@ -152,6 +154,7 @@ function BoardItem({ board, idx }: BoardItemProps) {
     remove: remove.mutate,
     rename: rename.mutate,
     initialName: board.name,
+    boardId: board.id,
   }
 
   return (
@@ -170,19 +173,22 @@ function BoardItem({ board, idx }: BoardItemProps) {
 
 function BoardItemMenu() {
   const [isDeleteOpen, setDeleteOpen] = useState(false)
-  const { setRenameOpen, remove } = useContext(BoardItemContext)
+  const { setRenameOpen, remove, boardId } = useContext(BoardItemContext)
+  const [isViewOpen, setViewOpen] = useState(false)
 
   return (
     <>
       <DropdownMenu>
-        <DropdownMenuTrigger>
+        <DropdownMenuTrigger asChild>
           <Button variant="ghost" size="icon" className="size-8">
             <MoreHorizontalIcon />
             <span className="sr-only">Open menu</span>
           </Button>
         </DropdownMenuTrigger>
         <DropdownMenuContent align="end">
-          <DropdownMenuItem disabled>Edit</DropdownMenuItem>
+          <DropdownMenuItem onSelect={() => setViewOpen(true)}>
+            Edit
+          </DropdownMenuItem>
           <DropdownMenuItem disabled>Open</DropdownMenuItem>
           <DropdownMenuItem onSelect={() => setRenameOpen(true)}>
             Rename
@@ -219,6 +225,8 @@ function BoardItemMenu() {
       </AlertDialog>
 
       <BoardItemRenameDialog />
+
+      <BoardView boardId={boardId} open={isViewOpen} setOpen={setViewOpen} />
     </>
   )
 }
