@@ -24,7 +24,7 @@ func GetRanking(ctx context.Context, bid uuid.UUID, limit int) ([]*db.Record, er
 		Column("player_id", "player_name", "score", "submitted_at").
 		Where("board_id = ?", bid).
 		OrderBy("score", bun.OrderDesc).
-		ModelTableExpr("? AS ?", bun.Ident("local.records"), bun.Ident("r")).
+		ModelTableExpr("sqlite_scan(?, ?) AS ?", bun.Ident("app.db"), bun.Ident("records"), bun.Ident("r")).
 		Scan(ctx); err != nil {
 		return records, err
 	}

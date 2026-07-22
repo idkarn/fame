@@ -25,7 +25,6 @@ func Init() error {
 	setupQuery := `
 		INSTALL sqlite;
 		LOAD sqlite;
-		ATTACH 'app.db' AS local (TYPE SQLITE);
 	`
 	if _, err = ng.NewRaw(setupQuery).Exec(context.TODO()); err != nil {
 		panic(err)
