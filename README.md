@@ -8,7 +8,7 @@
 
 - [x] Go
 - [x] Bun ORM
-- [ ] DuckDB
+- [x] DuckDB
 - [x] pquerna/otp
 - [x] golang-jwt/jwt
 - [ ] go-webauthn/webauthn

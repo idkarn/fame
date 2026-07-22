@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fame/internal/analytics"
 	"fame/internal/auth"
 	"fame/internal/cache"
 	"fame/internal/db"
@@ -12,6 +13,7 @@ func init() {
 	cache.Create()
 
 	db.Init()
+	analytics.Init()
 
 	auth.Init(memcachestore.NewMemcachedStore(cache.Client))
 
@@ -21,6 +23,7 @@ func init() {
 func main() {
 	defer cache.Client.Close()
 	defer db.Close()
+	defer analytics.Close()
 
 	server.Start()
 }

@@ -56,6 +56,11 @@ func Setup() {
 					records.GET("/:pid", findRecord)
 					records.DELETE("/:pid", deleteRecord)
 				}
+
+				analytics := boards.Group("/:id/analytics")
+				{
+					analytics.GET("/top", getRanking)
+				}
 			}
 
 			settings := dashboard.Group("/settings")

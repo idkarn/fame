@@ -9,7 +9,7 @@ import (
 
 func NewRecord(ctx context.Context, bid uuid.UUID, pid, playerName string, value int) (*db.Record, error) {
 	r := &db.Record{
-		BoardID:           bid,
+		BoardID:           &bid,
 		PlayerID:          pid,
 		PlayerDisplayName: playerName,
 		Score:             int64(value),
@@ -26,14 +26,21 @@ func NewRecord(ctx context.Context, bid uuid.UUID, pid, playerName string, value
 
 func GetRecord(ctx context.Context, bid uuid.UUID, pid string) (*db.Record, error) {
 	r := &db.Record{
-		BoardID:  bid,
+		BoardID:  &bid,
 		PlayerID: pid,
 	}
 
+	ranq := db.
+		Select((*db.Record)(nil)).
+		Column("*").
+		ColumnExpr("ROW_NUMBER() OVER (ORDER BY score DESC) AS rank")
+
 	if err := db.
-		Select(r).
-		WherePK().
-		Scan(ctx); err != nil {
+		NewSelect().
+		TableExpr("(?) AS p", ranq).
+		Where("p.board_id = ? AND p.player_id = ?", bid, pid).
+		// WherePK().
+		Scan(ctx, r); err != nil {
 		return nil, err
 	}
 
@@ -42,7 +49,7 @@ func GetRecord(ctx context.Context, bid uuid.UUID, pid string) (*db.Record, erro
 
 func DeleteRecord(ctx context.Context, bid uuid.UUID, pid string) error {
 	r := &db.Record{
-		BoardID:  bid,
+		BoardID:  &bid,
 		PlayerID: pid,
 	}
 
