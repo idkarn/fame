@@ -70,7 +70,7 @@ export function BoardView({ boardId, open, setOpen }: IBoardViewProps) {
   return (
     <>
       <Sheet open={open} onOpenChange={setOpen}>
-        <SheetContent>
+        <SheetContent className="data-[side=right]:sm:max-w-xl">
           <SheetHeader>
             <SheetTitle>Edit board</SheetTitle>
           </SheetHeader>
