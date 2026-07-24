@@ -76,6 +76,11 @@ func Setup() {
 		{
 			scores.POST("/", submit)
 		}
+
+		public := api.Group("/public")
+		{
+			public.GET("/games/:id", getPublicGame)
+		}
 	}
 }
 
