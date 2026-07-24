@@ -18,6 +18,12 @@ export async function getGame(id: string): Promise<Game> {
   return await GET(`/games/${id}`)
 }
 
+export async function getPublicGame(
+  id: string,
+): Promise<Omit<Game, 'ownerId' | 'projectName'>> {
+  return await GET(`/public/games/${id}`)
+}
+
 export async function createGame(projectName: string): Promise<Game> {
   return await POST('/games/', {
     projectName: projectName,

@@ -71,6 +71,7 @@ function RouteComponent() {
     initialData,
   })
 
+  // FIXME: unable to reset gameURL
   const saveSettings = useMutation({
     mutationFn: (newSettings: FormSchemaT) => setSettings(gameId, newSettings),
     onSuccess: () =>
