@@ -22,6 +22,7 @@ import {
 } from '#/components/ui/card'
 import {
   Field,
+  FieldContent,
   FieldDescription,
   FieldError,
   FieldGroup,
@@ -36,7 +37,8 @@ import {
   useNavigate,
   useParams,
 } from '@tanstack/react-router'
-import { Trash2Icon } from 'lucide-react'
+import { Check, Copy, Trash2Icon } from 'lucide-react'
+import { useState } from 'react'
 import type { ReactNode } from 'react'
 import { Controller, useForm } from 'react-hook-form'
 import type { Control } from 'react-hook-form'
@@ -65,6 +67,8 @@ function RouteComponent() {
   const queryClient = useQueryClient()
   const gameId = useParams({ from: '/dashboard/games/$id/config' }).id
 
+  const [isTokenCopied, setIsTokenCopied] = useState(false)
+
   const { data } = useQuery({
     queryKey: ['config', gameId],
     queryFn: () => getSettings(gameId),
@@ -90,6 +94,16 @@ function RouteComponent() {
     },
   })
 
+  async function copyToClipboard() {
+    try {
+      await navigator.clipboard.writeText(data.token)
+      setIsTokenCopied(true)
+      setTimeout(() => setIsTokenCopied(false), 2000) // Сброс иконки через 2 секунды
+    } catch (err) {
+      console.error("Couldn't copy token to clipboard: ", err)
+    }
+  }
+
   return (
     <div>
       <h2 className="scroll-m-20 font-heading pb-2 text-3xl font-semibold tracking-tight first:mt-0 mb-2">
@@ -99,6 +113,50 @@ function RouteComponent() {
         onSubmit={handleSubmit((v) => saveSettings.mutate(v))}
         className="flex flex-col gap-4"
       >
+        <Card>
+          <CardHeader>
+            <CardTitle>Access</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <FieldGroup>
+              <Field>
+                <FieldLabel htmlFor="token">Token</FieldLabel>
+                <div className="flex gap-2">
+                  <Input
+                    id="token"
+                    value={'0'.repeat(64)}
+                    type="password"
+                    readOnly
+                    className="font-mono text-sm tracking-wider select-all"
+                  />
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="icon"
+                    onClick={copyToClipboard}
+                    className="shrink-0"
+                  >
+                    {isTokenCopied ? (
+                      <Check aria-hidden="true" />
+                    ) : (
+                      <Copy aria-hidden="true" />
+                    )}
+                    <span className="sr-only">Copy to clipboard</span>
+                  </Button>
+                </div>
+                <FieldDescription>
+                  This token allows submitting scores by the game
+                </FieldDescription>
+              </Field>
+            </FieldGroup>
+          </CardContent>
+          <CardFooter>
+            <p className="text-muted-foreground">
+              For now it&apos;s up to you to keep token in secret to prevent
+              malicius usage. There is no way to revoke it at the moment
+            </p>
+          </CardFooter>
+        </Card>
         <SettingsFormCard
           title="Public"
           formControl={control}
