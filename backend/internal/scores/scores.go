@@ -17,6 +17,10 @@ func NewRecord(ctx context.Context, bid uuid.UUID, pid, playerName string, value
 
 	if _, err := db.
 		Insert(r).
+		On("CONFLICT (board_id, player_id) DO UPDATE").
+		Set("score = EXCLUDED.score").
+		Set("submitted_at = datetime('now')").
+		Where("records.score < EXCLUDED.score").
 		Exec(ctx); err != nil {
 		return nil, err
 	}
