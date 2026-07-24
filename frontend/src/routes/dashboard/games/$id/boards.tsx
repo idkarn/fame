@@ -54,8 +54,8 @@ import {
   useQueryClient,
   useSuspenseQuery,
 } from '@tanstack/react-query'
-import { createFileRoute, useParams } from '@tanstack/react-router'
-import { MoreHorizontalIcon, Trash2Icon } from 'lucide-react'
+import { createFileRoute, Link, useParams } from '@tanstack/react-router'
+import { ExternalLink, MoreHorizontalIcon, Trash2Icon } from 'lucide-react'
 import { createContext, useContext, useEffect, useState } from 'react'
 import { Controller, useForm } from 'react-hook-form'
 import z from 'zod'
@@ -172,6 +172,9 @@ function BoardItem({ board, idx }: BoardItemProps) {
 }
 
 function BoardItemMenu() {
+  const gameId = useParams({
+    from: '/dashboard/games/$id/boards',
+  }).id
   const [isDeleteOpen, setDeleteOpen] = useState(false)
   const { setRenameOpen, remove, boardId } = useContext(BoardItemContext)
   const [isViewOpen, setViewOpen] = useState(false)
@@ -189,7 +192,6 @@ function BoardItemMenu() {
           <DropdownMenuItem onSelect={() => setViewOpen(true)}>
             Edit
           </DropdownMenuItem>
-          <DropdownMenuItem disabled>Open</DropdownMenuItem>
           <DropdownMenuItem onSelect={() => setRenameOpen(true)}>
             Rename
           </DropdownMenuItem>

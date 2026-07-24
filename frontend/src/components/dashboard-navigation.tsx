@@ -1,5 +1,6 @@
-import { Link, useRouterState } from '@tanstack/react-router'
-import { buttonVariants } from './ui/button'
+import { Link, useParams, useRouterState } from '@tanstack/react-router'
+import { Button, buttonVariants } from './ui/button'
+import { ExternalLink } from 'lucide-react'
 
 const tabs = [
   { text: 'Overview', route: '' },
@@ -9,6 +10,10 @@ const tabs = [
 ]
 
 export function DashboardNavigation() {
+  const gameId = useParams({
+    from: '/dashboard/games/$id',
+  }).id
+
   const activeTab = ((item = '') => {
     if (!tabs.map((tab) => tab.route).includes(item)) {
       item = ''
@@ -25,6 +30,12 @@ export function DashboardNavigation() {
           variant={tab.route === activeTab ? 'default' : 'secondary'}
         />
       ))}
+      <Button variant="link" asChild className="ms-auto">
+        <a href={`/g/${gameId}`} target="_blank">
+          Public page
+          <ExternalLink />
+        </a>
+      </Button>
     </nav>
   )
 }
