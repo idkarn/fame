@@ -56,9 +56,7 @@ func submit(c *echo.Context) error {
 		return echo.ErrInternalServerError.Wrap(err)
 	}
 
-	return c.JSON(http.StatusOK, map[string]any{
-		"submittedAt": r.SubmittedAt,
-	})
+	return c.JSON(http.StatusOK, r)
 }
 
 func findRecord(c *echo.Context) error {

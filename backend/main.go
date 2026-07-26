@@ -5,6 +5,7 @@ import (
 	"fame/internal/auth"
 	"fame/internal/cache"
 	"fame/internal/db"
+	"fame/internal/names"
 	"fame/internal/server"
 	"fame/pkg/memcachestore"
 )
@@ -16,6 +17,8 @@ func init() {
 	analytics.Init()
 
 	auth.Init(memcachestore.NewMemcachedStore(cache.Client))
+
+	names.PrepareWordlists()
 
 	server.Setup()
 }
