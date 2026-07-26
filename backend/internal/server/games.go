@@ -87,26 +87,3 @@ func deleteGame(c *echo.Context) error {
 
 	return c.String(http.StatusOK, http.StatusText(http.StatusOK))
 }
-
-// todo: rebuild this - i dont like this approach
-func getPublicGame(c *echo.Context) error {
-	id := c.Param("id")
-	gid, err := uuid.Parse(id)
-	if err != nil {
-		return c.String(http.StatusBadRequest, "bad game id")
-	}
-
-	game, err := games.GetGame(c.Request().Context(), gid)
-	if errors.Is(err, sql.ErrNoRows) {
-		return c.String(http.StatusNotFound, "not found")
-	} else if err != nil {
-		return echo.ErrBadRequest.Wrap(err)
-	}
-
-	return c.JSON(http.StatusOK, map[string]any{
-		"id":          game.ID,
-		"displayName": game.DisplayName,
-		"gameUrl":     game.GameURL,
-		"boards":      game.Boards,
-	})
-}

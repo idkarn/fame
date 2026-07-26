@@ -80,6 +80,7 @@ func Setup() {
 		public := api.Group("/public")
 		{
 			public.GET("/games/:id", getPublicGame)
+			public.GET("/boards/:id", getPublicBoard)
 		}
 	}
 }

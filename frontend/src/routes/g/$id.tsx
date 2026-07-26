@@ -1,5 +1,5 @@
-import { getRanking } from '#/api/analytics'
-import { getGame, getPublicGame } from '#/api/games'
+import { getPublicBoard } from '#/api/public/boards'
+import { getPublicGame } from '#/api/public/games'
 import {
   Table,
   TableBody,
@@ -55,7 +55,7 @@ function RouteComponent() {
 function BoardContent({ boardId }: { boardId: string }) {
   const { data } = useQuery({
     queryKey: ['board', boardId],
-    queryFn: () => getRanking(boardId),
+    queryFn: () => getPublicBoard(boardId),
     staleTime: 1000 * 60 * 1, // Data stays fresh for 1 minute
   })
 
@@ -73,7 +73,7 @@ function BoardContent({ boardId }: { boardId: string }) {
       </TableHeader>
       <TableBody>
         {data?.map((record, idx) => (
-          <TableRow key={record.playerId}>
+          <TableRow key={idx}>
             <TableCell>{idx + 1}</TableCell>
             <TableCell>{record.playerName}</TableCell>
             <TableCell>{record.score}</TableCell>

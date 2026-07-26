@@ -15,13 +15,19 @@ func must(v any, e error) any {
 	return v
 }
 
-func GetRanking(ctx context.Context, bid uuid.UUID, limit int) ([]*db.Record, error) {
+func GetRanking(ctx context.Context, bid uuid.UUID, limit int, getDetails bool) ([]*db.Record, error) {
 	records := make([]*db.Record, 0, limit)
 
-	if err := ng.
+	q := ng.
 		NewSelect().
 		Model(&records).
-		Column("player_id", "player_name", "score", "submitted_at").
+		Column("player_name", "score")
+
+	if getDetails {
+		q.Column("player_id", "submitted_at")
+	}
+
+	if err := q.
 		Where("board_id = ?", bid).
 		OrderBy("score", bun.OrderDesc).
 		ModelTableExpr("sqlite_scan(?, ?) AS ?", bun.Ident("app.db"), bun.Ident("records"), bun.Ident("r")).
