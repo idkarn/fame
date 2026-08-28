@@ -61,6 +61,11 @@ func Setup() {
 				{
 					analytics.GET("/top", getRanking)
 				}
+
+				stats := boards.Group("/:id/stats")
+				{
+					stats.GET("/daily-players", getDailyPlayers)
+				}
 			}
 
 			settings := dashboard.Group("/settings")
